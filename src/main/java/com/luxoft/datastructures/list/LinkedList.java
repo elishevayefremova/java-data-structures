@@ -1,8 +1,9 @@
 package com.luxoft.datastructures.list;
 
+import java.util.Iterator;
 import java.util.StringJoiner;
 
-public class LinkedList implements List{
+public class LinkedList implements List, Iterable{
 
     private Node head;
     private Node tail;
@@ -16,11 +17,7 @@ public class LinkedList implements List{
     @Override
     public void add(Object value, int index) {
 
-        if (index<0){
-            throw new IndexOutOfBoundsException("Index can't be less than zero");
-        } else if ( index>size){
-            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
-        }
+        checkBounds(index);
 
         Node newNode = new Node(value);
 
@@ -42,13 +39,7 @@ public class LinkedList implements List{
 
         } else {
 
-            Node currentNode = head;
-            int counter = 0;
-
-            while (counter != index){
-                currentNode = currentNode.next;
-                counter++;
-            }
+            Node currentNode = getNode(index);
 
             newNode.next = currentNode;
             newNode.prev = currentNode.prev;
@@ -62,13 +53,8 @@ public class LinkedList implements List{
 
     @Override
     public Object remove(int index) {
-        if (index<0){
-            throw new IndexOutOfBoundsException("Index can't be less than zero");
-        } else if ( index>=size){
-            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
-        } else if (isEmpty()){
-            throw new IllegalStateException("List is empty.");
-        }
+        checkBounds(index);
+        checkIsEmpty();
 
         Node removedNode = null;
 
@@ -85,15 +71,10 @@ public class LinkedList implements List{
             tail = removedNode.prev;
             tail.next = null;
         } else {
-            Node currentNode = head;
-            int counter = 0;
 
-            while (counter != index - 1) {
-                currentNode = currentNode.next;
-                counter++;
-            }
+            Node currentNode = getNode(index);
+
             removedNode = currentNode.next;
-
             currentNode.next = removedNode.next;
             removedNode.next.prev = currentNode;
         }
@@ -104,31 +85,15 @@ public class LinkedList implements List{
 
     @Override
     public Object get(int index) {
-        if (index<0){
-            throw new IndexOutOfBoundsException("Index can't be less than zero");
-        } else if ( index>size){
-            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
-        }
+        checkBounds(index);
         int counter = 0;
-        Node currentNode = head;
-        while(counter<size){
-            if (counter<index){
-                currentNode = currentNode.next;
-            } else if (counter == index){
-                return currentNode.value;
-            }
-            counter++;
-        }
-        return null;
+        Node currentNode = getNode(index);
+        return currentNode.value;
     }
 
     @Override
     public Object set(Object value, int index) {
-        if (index<0){
-            throw new IndexOutOfBoundsException("Index can't be less than zero");
-        } else if ( index>size){
-            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
-        }
+        checkBounds(index);
 
         int counter = 0;
         Node currentNode = head;
@@ -157,33 +122,17 @@ public class LinkedList implements List{
 
     @Override
     public boolean isEmpty() {
-        return size==0 ? true : false;
+        return size==0;
     }
 
     @Override
     public boolean contains(Object value) {
-        if (isEmpty()){
-            throw new IllegalStateException("List is empty.");
-        }
-
-        int counter = 0;
-        Node currentNode = head;
-        while(counter<size){
-            if (value.equals(currentNode.value)){
-                return true;
-            }
-            currentNode = currentNode.next;
-            counter++;
-        }
-
-        return false;
+        return indexOf(value)!=-1;
     }
 
     @Override
     public int indexOf(Object value) {
-        if (isEmpty()){
-            throw new IllegalStateException("List is empty.");
-        }
+        checkIsEmpty();
 
         int counter = 0;
         Node currentNode = head;
@@ -200,9 +149,7 @@ public class LinkedList implements List{
 
     @Override
     public int lastIndexOf(Object value) {
-        if (isEmpty()){
-            throw new IllegalStateException("List is empty.");
-        }
+        checkIsEmpty();
 
         int counter = 0;
         int result = -1;
@@ -219,21 +166,83 @@ public class LinkedList implements List{
     }
 
     @Override
-    public String toString(){
-        if (isEmpty()){
+    public String toString() {
+        if (isEmpty()) {
             throw new IllegalStateException("ArrayList is empty.");
         }
 
         StringJoiner printedArray = new StringJoiner(", ", "[", "]");
         Node currentNode = head;
 
-        int counter = 0;
-        while(counter<size){
-            printedArray.add(currentNode.value.toString());
-            currentNode = currentNode.next;
-            counter++;
+        Iterator iterator = new LinkedListIterator();
+
+        while (iterator.hasNext()){
+            printedArray.add(iterator.next().toString());
         }
+
 
         return printedArray.toString();
     }
+
+    private void checkBounds(int index){
+        if (index<0){
+            throw new IndexOutOfBoundsException("Index can't be less than zero");
+        } else if ( index>size){
+            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
+        }
+    }
+
+    private void checkIsEmpty(){
+        if (isEmpty()){
+            throw new IllegalStateException("List is empty.");
+        }
+    }
+
+    private Node getNode(int index){
+        checkBounds(index);
+        Node currentNode = head;
+
+        if ( index==0 ){
+            currentNode = head;
+        } else if (index==size-1){
+            currentNode = tail;
+        } else if (index<size/2){
+            for (int i = 0; i < index; i++) {
+                currentNode = currentNode.next;
+            }
+        } else {
+            currentNode = tail;
+            for (int i = size-1; i > index; i--) {
+                    currentNode = currentNode.prev;
+            }
+        }
+
+        return currentNode;
+    }
+
+    @Override
+    public Iterator iterator() {
+        return new LinkedListIterator();
+    }
+
+    public class LinkedListIterator implements Iterator {
+        private int maxCount = size;
+        private int index = 0;
+
+        @Override
+        public boolean hasNext() {
+            return index<size;
+        }
+
+        @Override
+        public Object next() {
+            Node o = getNode(index);
+            index++;
+            return o.value;
+        }
+    }
 }
+
+
+
+
