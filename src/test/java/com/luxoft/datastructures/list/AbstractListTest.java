@@ -85,7 +85,15 @@ public abstract class AbstractListTest {
             list.remove(1);
             list.remove(0);
             assertEquals(0, list.size());
+        }
 
+        @Test
+        public void testRemove(){
+            assertEquals(0, list.size());
+            list.add(1);
+            list.add(2);
+            list.add(3);
+            assertEquals(1, list.remove(0));
         }
 
         @Test
@@ -143,7 +151,7 @@ public abstract class AbstractListTest {
         }
 
         @Test
-        public void testClearlistList(){
+        public void testClearList(){
 
             list.add(1);
             list.add(2);

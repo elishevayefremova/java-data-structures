@@ -1,7 +1,7 @@
 package com.luxoft.datastructures.list;
 
 // Abstract Data Type
-public interface List {
+public interface List extends Iterable {
     // add value to the end of the list
     void add(Object value);
 
@@ -44,4 +44,5 @@ public interface List {
 
     // [A, B, C]
     String toString();
+
 }

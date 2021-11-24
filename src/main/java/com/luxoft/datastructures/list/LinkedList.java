@@ -3,16 +3,10 @@ package com.luxoft.datastructures.list;
 import java.util.Iterator;
 import java.util.StringJoiner;
 
-public class LinkedList implements List, Iterable{
+public class LinkedList extends AbstractList {
 
     private Node head;
     private Node tail;
-    private int size;
-
-    @Override
-    public void add(Object value) {
-        add(value, size);
-    }
 
     @Override
     public void add(Object value, int index) {
@@ -31,7 +25,7 @@ public class LinkedList implements List, Iterable{
             newNode.next = head;
             head = newNode;
 
-        } else if (index == size){
+        } else if (index == size) {
 
             tail.next = newNode;
             newNode.prev = tail;
@@ -58,7 +52,7 @@ public class LinkedList implements List, Iterable{
 
         Node removedNode = null;
 
-        if (size == 1){
+        if (size == 1) {
             removedNode = head;
             clear();
             return removedNode;
@@ -66,12 +60,11 @@ public class LinkedList implements List, Iterable{
             removedNode = head;
             head = head.next;
             head.prev = null;
-        } else if (index == size - 1){
+        } else if (index == size - 1) {
             removedNode = tail;
             tail = removedNode.prev;
             tail.next = null;
         } else {
-
             Node currentNode = getNode(index);
 
             removedNode = currentNode.next;
@@ -80,7 +73,7 @@ public class LinkedList implements List, Iterable{
         }
         size--;
 
-        return removedNode;
+        return removedNode.value;
     }
 
     @Override
@@ -97,8 +90,8 @@ public class LinkedList implements List, Iterable{
 
         int counter = 0;
         Node currentNode = head;
-        while(counter<size){
-            if (counter == index){
+        while (counter < size) {
+            if (counter == index) {
                 currentNode.value = value;
                 return currentNode.value;
             }
@@ -116,18 +109,8 @@ public class LinkedList implements List, Iterable{
     }
 
     @Override
-    public int size() {
-        return size;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size==0;
-    }
-
-    @Override
     public boolean contains(Object value) {
-        return indexOf(value)!=-1;
+        return indexOf(value) != -1;
     }
 
     @Override
@@ -135,12 +118,12 @@ public class LinkedList implements List, Iterable{
         checkIsEmpty();
 
         int counter = 0;
-        Node currentNode = head;
-        while(counter<size){
-            if (value.equals(currentNode.value)){
+
+        Iterator iterator = new LinkedList.LinkedListIterator();
+        while (iterator.hasNext()) {
+            if (value.equals(iterator.next())) {
                 return counter;
             }
-            currentNode = currentNode.next;
             counter++;
         }
 
@@ -153,12 +136,12 @@ public class LinkedList implements List, Iterable{
 
         int counter = 0;
         int result = -1;
-        Node currentNode = head;
-        while(counter<size){
-            if (value.equals(currentNode.value)){
+
+        Iterator iterator = new LinkedList.LinkedListIterator();
+        while (iterator.hasNext()) {
+            if (value.equals(iterator.next())) {
                 result = counter;
             }
-            currentNode = currentNode.next;
             counter++;
         }
 
@@ -167,53 +150,36 @@ public class LinkedList implements List, Iterable{
 
     @Override
     public String toString() {
-        if (isEmpty()) {
-            throw new IllegalStateException("ArrayList is empty.");
-        }
+        checkIsEmpty();
 
         StringJoiner printedArray = new StringJoiner(", ", "[", "]");
         Node currentNode = head;
 
         Iterator iterator = new LinkedListIterator();
 
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             printedArray.add(iterator.next().toString());
         }
-
 
         return printedArray.toString();
     }
 
-    private void checkBounds(int index){
-        if (index<0){
-            throw new IndexOutOfBoundsException("Index can't be less than zero");
-        } else if ( index>size){
-            throw new IndexOutOfBoundsException("Index can't be bigger than list size. Current list size is" + size + ". Your index is: " + index);
-        }
-    }
-
-    private void checkIsEmpty(){
-        if (isEmpty()){
-            throw new IllegalStateException("List is empty.");
-        }
-    }
-
-    private Node getNode(int index){
+    private Node getNode(int index) {
         checkBounds(index);
         Node currentNode = head;
 
-        if ( index==0 ){
+        if (index == 0) {
             currentNode = head;
-        } else if (index==size-1){
+        } else if (index == size - 1) {
             currentNode = tail;
-        } else if (index<size/2){
+        } else if (index < size / 2) {
             for (int i = 0; i < index; i++) {
                 currentNode = currentNode.next;
             }
         } else {
             currentNode = tail;
-            for (int i = size-1; i > index; i--) {
-                    currentNode = currentNode.prev;
+            for (int i = size - 1; i > index; i--) {
+                currentNode = currentNode.prev;
             }
         }
 
@@ -231,7 +197,7 @@ public class LinkedList implements List, Iterable{
 
         @Override
         public boolean hasNext() {
-            return index<size;
+            return index < size;
         }
 
         @Override
@@ -240,6 +206,7 @@ public class LinkedList implements List, Iterable{
             index++;
             return o.value;
         }
+
     }
 }
 
